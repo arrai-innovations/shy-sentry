@@ -1,5 +1,8 @@
 # shy-sentry
-sentry-sdk but quite
+sentry-sdk but silent
+
+![Shh.](./shy-sentry.png)
+> Shh.
 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=for-the-badge)](https://github.com/psf/black)
 
@@ -27,7 +30,7 @@ sentry-sdk but quite
    
    
    def main():
-       ...
+       print(1/0)
    
    
    if __name__ == "__main__":
@@ -42,7 +45,21 @@ sentry-sdk but quite
    
    @shy_sentry.Guard()
    def main():
-       ...
+       print(1/0)
+   
+   
+   if __name__ == "__main__":
+       shy_sentry.init(config_path="./sentry_config.json")
+       main()
+   ```
+   If you miss doing either of those, your sentry will be loud! This will get you ZeroDivisionError traceback in Sentry
+    and your console.
+   ```python
+   import shy_sentry
+   
+   
+   def main():
+       print(1/0)
    
    
    if __name__ == "__main__":
