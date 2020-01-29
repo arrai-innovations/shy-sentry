@@ -28,6 +28,7 @@ jobs:
     executor: <<parameters.executor>>
     steps:
       - checkout
+      - run: sudo apt-get install rsync
       - utils/add_ssh_config:
           host: "docs"
           hostname: ${DOCS_HOST}

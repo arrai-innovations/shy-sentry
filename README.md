@@ -8,9 +8,21 @@ sentry-sdk but silent
 
 ###### master
 
+![Tests](https://docs.arrai-dev.com/shy-sentry/master.python38.svg) [![Coverage](https://docs.arrai-dev.com/shy-sentry/master.python38.coverage.svg)](https://docs.arrai-dev.com/shy-sentry/htmlcov_master_python38/)
+
+![Tests](https://docs.arrai-dev.com/shy-sentry/master.python37.svg) [![Coverage](https://docs.arrai-dev.com/shy-sentry/master.python37.coverage.svg)](https://docs.arrai-dev.com/shy-sentry/htmlcov_master_python37/)
+
+![Tests](https://docs.arrai-dev.com/shy-sentry/master.python36.svg) [![Coverage](https://docs.arrai-dev.com/shy-sentry/master.python36.coverage.svg)](https://docs.arrai-dev.com/shy-sentry/htmlcov_master_python36/)
+
 ![Flake8](https://docs.arrai-dev.com/shy-sentry/master.flake8.svg)
 
 ###### develop
+
+![Tests](https://docs.arrai-dev.com/shy-sentry/develop.python38.svg) [![Coverage](https://docs.arrai-dev.com/shy-sentry/develop.python38.coverage.svg)](https://docs.arrai-dev.com/shy-sentry/htmlcov_develop_python38/)
+
+![Tests](https://docs.arrai-dev.com/shy-sentry/develop.python37.svg) [![Coverage](https://docs.arrai-dev.com/shy-sentry/develop.python37.coverage.svg)](https://docs.arrai-dev.com/shy-sentry/htmlcov_develop_python37/)
+
+![Tests](https://docs.arrai-dev.com/shy-sentry/develop.python36.svg) [![Coverage](https://docs.arrai-dev.com/shy-sentry/develop.python36.coverage.svg)](https://docs.arrai-dev.com/shy-sentry/htmlcov_develop_python36/)
 
 ![Flake8](https://docs.arrai-dev.com/shy-sentry/develop.flake8.svg)
 
