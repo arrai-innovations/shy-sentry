@@ -25,8 +25,10 @@ sentry-sdk but quite
    ```python
    import shy_sentry
    
+   
    def main():
        ...
+   
    
    if __name__ == "__main__":
        shy_sentry.init(config_path="./sentry_config.json")
@@ -37,9 +39,11 @@ sentry-sdk but quite
    ```python
    import shy_sentry
    
+   
    @shy_sentry.Guard()
    def main():
        ...
+   
    
    if __name__ == "__main__":
        shy_sentry.init(config_path="./sentry_config.json")

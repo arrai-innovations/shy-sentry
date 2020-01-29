@@ -5,7 +5,7 @@ from typing import ContextManager
 
 import sentry_sdk
 from sentry_sdk import Hub
-from sentry_sdk._types import ExcInfo
+from sentry_sdk._types import MYPY
 from sentry_sdk.integrations.argv import ArgvIntegration
 from sentry_sdk.integrations.atexit import AtexitIntegration
 from sentry_sdk.integrations.dedupe import DedupeIntegration
@@ -15,12 +15,19 @@ from sentry_sdk.integrations.modules import ModulesIntegration
 from sentry_sdk.integrations.stdlib import StdlibIntegration
 from sentry_sdk.integrations.threading import ThreadingIntegration
 
+if MYPY:
+    from sentry_sdk._types import ExcInfo
+
 
 def init(config_path=None):
     if not config_path:
         config_path = "./sentry_config.json"
     with open(config_path, "r") as sentry_config_file:
         sentry_config = json.load(sentry_config_file)
+
+        def my_callback(*args, **kwargs):
+            pass
+
         sentry_sdk.init(
             dsn=sentry_config["SENTRY_DSN"],
             environment=sentry_config["SENTRY_ENVIRONMENT"],
@@ -31,7 +38,7 @@ def init(config_path=None):
                 StdlibIntegration(),
                 ExcepthookIntegration(),
                 DedupeIntegration(),
-                AtexitIntegration(callback=lambda: None),
+                AtexitIntegration(callback=my_callback),
                 ModulesIntegration(),
                 ArgvIntegration(),
                 ThreadingIntegration(),

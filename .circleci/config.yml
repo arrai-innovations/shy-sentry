@@ -38,7 +38,7 @@ jobs:
           color: lightblue
       - run: sudo -E pip install -r requirements.txt -r test_requirements.txt | cat; test ${PIPESTATUS[0]} -eq 0
       - run: sudo -E pip install coverage
-      - run: coverage run setup.py test
+      - run: coverage run -m unittest
       - run:
           when: always
           command: |
