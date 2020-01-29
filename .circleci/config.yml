@@ -1,0 +1,24 @@
+version: 2.1
+orbs:
+  flake8: arrai/flake8@6.0.0
+workflows:
+  test:
+    jobs:
+      - flake8/flake8:
+          name: flake8
+          context: arrai-global
+          wd: ~/project
+  weekly:
+    jobs:
+      - flake8/flake8:
+          name: flake8
+          context: arrai-global
+          wd: ~/project
+    triggers:
+      - schedule:
+          cron: "0 2 * * 1"
+          filters:
+            branches:
+              only:
+                - master
+                - develop
