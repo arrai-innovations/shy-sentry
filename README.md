@@ -1,6 +1,8 @@
 # shy-sentry
 sentry-sdk but quite
 
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=for-the-badge)](https://github.com/psf/black)
+
 ## Usage
 1. Create a JSON configuration file with keys, used to configure sentry sdk:
    ```json
@@ -18,8 +20,8 @@ sentry-sdk but quite
    def main():
        ...
    
-   if __name__ == '__main__':
-       shy_sentry.init(config_path='./sentry_config.json')
+   if __name__ == "__main__":
+       shy_sentry.init(config_path="./sentry_config.json")
        with shy_sentry.Guard():
            main()
    ```
@@ -31,7 +33,7 @@ sentry-sdk but quite
    def main():
        ...
    
-   if __name__ == '__main__':
-       shy_sentry.init(config_path='./sentry_config.json')
+   if __name__ == "__main__":
+       shy_sentry.init(config_path="./sentry_config.json")
        main()
    ```
