@@ -3,7 +3,7 @@ import os
 import sys
 
 sys.path.append(os.getcwd())
-import shy_sentry
+import shy_sentry  # noqa: E402
 
 
 def main():
