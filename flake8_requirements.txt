@@ -1,0 +1,12 @@
+flake8
+flake8-assertive
+flake8-black
+flake8-bugbear
+flake8-builtins
+flake8-broken-line
+flake8-comprehensions
+flake8-debugger
+flake8-fixme
+flake8-logging-format
+flake8-pep3101
+pep8-naming

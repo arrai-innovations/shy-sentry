@@ -1,0 +1,26 @@
+[flake8]
+select =
+    # flake8-builtins
+    A0
+    # flake8-bugbear general
+    B0
+    # flake8-bugbear Python 3 compatibility
+    B3
+    # flake8-bugbear opinionated
+    B9
+    # pycodestyle errors
+    E
+    # pyflakes imports
+    F4
+    # pyflakes expressions
+    F6
+    # pyflakes statements and syntax
+    F7
+    # pyflakes variables
+    F8
+    # pyflakes `raises NotImplemented`
+    F9
+    # pep8-naming
+    N8
+    # flake8-debugger, flake8-fixme
+    T1
