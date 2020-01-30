@@ -45,7 +45,7 @@ class MockSentryTestCase(TestCase):
     def setUpClass(cls: TestCase) -> None:
         super().setUpClass()
         cls.pretender_boss = subprocess.Popen(
-            ["python", "-m", "pretenders.server.server", "--host", "localhost", "--port", "8888"],
+            ["python", "-m", "pretenders.server.server", "--host", "0.0.0.0", "--port", "8888"],
             stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
