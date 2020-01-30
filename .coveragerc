@@ -2,6 +2,9 @@
 branch = True
 parallel = True
 concurrency = multiprocessing
+include =
+  *shy_sentry/*
+  *tests/*
 
 [report]
 exclude_lines =
