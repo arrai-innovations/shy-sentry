@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Black Scope" pattern="file[shy-sentry]:*/" />
+</component>

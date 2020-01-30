@@ -1,0 +1,130 @@
+version: 2.1
+orbs:
+  utils: arrai/utils@1.5.0
+  flake8: arrai/flake8@6.0.0
+executors:
+  python36:
+    environment:
+        LANG: en_US.UTF-8
+    docker:
+     - image: circleci/python:3.6
+  python37:
+    environment:
+        LANG: en_US.UTF-8
+    docker:
+     - image: circleci/python:3.7
+  python38:
+    environment:
+        LANG: en_US.UTF-8
+    docker:
+     - image: circleci/python:3.8
+jobs:
+  pythontests:
+    parameters:
+      executor:
+        description: "Execution environment for the test job."
+        type: executor
+        default: python36
+    executor: <<parameters.executor>>
+    steps:
+      - checkout
+      - run: sudo apt-get install rsync
+      - utils/add_ssh_config:
+          host: "docs"
+          hostname: ${DOCS_HOST}
+          port: ${DOCS_PORT}
+          user: ${DOCS_USER}
+      - utils/make_status_shield:
+          status: running
+          color: lightblue
+      - run: sudo -E pip install -r requirements.txt -r test_requirements.txt | cat; test ${PIPESTATUS[0]} -eq 0
+      - run: sudo -E pip install coverage
+      - run: echo "import coverage; coverage.process_startup()" > coverage-all-the-things.pth
+      - run: export COVERAGE_PROCESS_START=".coveragerc"
+      - run: sudo -E mv ./coverage-all-the-things.pth $(python -c "import sys; import os; print([x for x in sys.path if x.find('site-packages') != -1][0] + '/')")
+      - run: coverage run -p -m unittest
+      - run:
+          when: always
+          command: |
+            coverage combine -a
+            coverage html
+            coverage report | grep -oP '^TOTAL.*\d' | awk '{print $NF}' >> ~/.coveragep
+      - utils/rsync_folder:
+          when: always
+          folder: ./htmlcov/
+          remote_folder: htmlcov_${CIRCLE_BRANCH}_${CIRCLE_JOB}
+          host: docs
+      - utils/make_coverage_shield:
+          when: always
+          link: "https://${DOCS_HOST}/shopsite/htmlcov_${CIRCLE_BRANCH}_${CIRCLE_JOB}/"
+      - utils/rsync_file:
+          when: always
+          file: ~/coverage.svg
+          remote_file: ${CIRCLE_BRANCH}.${CIRCLE_JOB}.coverage.svg
+          host: docs
+      - run:
+          when: always
+          command: pip freeze > ~/pip.freeze
+      - utils/rsync_file:
+          when: always
+          file: ~/pip.freeze
+          remote_file: ${CIRCLE_BRANCH}.${CIRCLE_JOB}.freeze
+          host: docs
+      - utils/make_status_shield:
+          when: on_success
+          status: passed
+          color: brightgreen
+      - utils/make_status_shield:
+          when: on_fail
+          status: failed
+          color: red
+      - utils/rsync_file:
+          when: always
+          file: ~/status.svg
+          remote_file: ${CIRCLE_BRANCH}.${CIRCLE_JOB}.svg
+          host: docs
+workflows:
+  test:
+    jobs:
+      - pythontests:
+          name: python36
+          context: arrai-global
+          executor: python36
+      - pythontests:
+          name: python37
+          context: arrai-global
+          executor: python37
+      - pythontests:
+          name: python38
+          context: arrai-global
+          executor: python38
+      - flake8/flake8:
+          name: flake8
+          context: arrai-global
+          wd: ~/project
+  weekly:
+    jobs:
+      - pythontests:
+          name: python36
+          context: arrai-global
+          executor: python36
+      - pythontests:
+          name: python37
+          context: arrai-global
+          executor: python37
+      - pythontests:
+          name: python38
+          context: arrai-global
+          executor: python38
+      - flake8/flake8:
+          name: flake8
+          context: arrai-global
+          wd: ~/project
+    triggers:
+      - schedule:
+          cron: "0 2 * * 1"
+          filters:
+            branches:
+              only:
+                - master
+                - develop

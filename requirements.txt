@@ -1,0 +1,2 @@
+setuptools>=45.1.0
+sentry-sdk>=0.14.1,<1.0.0

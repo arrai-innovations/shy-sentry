@@ -1,0 +1,5 @@
+{
+    "SENTRY_DSN": "http://client_key@localhost:8888/mockhttp/mock_sentry/123456",
+    "SENTRY_ENVIRONMENT": "dev",
+    "SENTRY_RELEASE_STRING": "project:branch@version"
+}
