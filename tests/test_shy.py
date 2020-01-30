@@ -45,13 +45,13 @@ class MockSentryTestCase(TestCase):
     def setUpClass(cls: TestCase) -> None:
         super().setUpClass()
         cls.pretender_boss = subprocess.Popen(
-            ["python", "-m", "pretenders.server.server", "--host", "0.0.0.0", "--port", "8888"],
+            ["python", "-m", "pretenders.server.server", "--host", "127.0.0.1", "--port", "8888"],
             stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
         sleep(0.5)
-        cls.mock_sentry = HTTPMock("localhost", 8888, name="mock_sentry")
+        cls.mock_sentry = HTTPMock("127.0.0.1", 8888, name="mock_sentry")
 
     def setUp(self) -> None:
         super().setUp()
