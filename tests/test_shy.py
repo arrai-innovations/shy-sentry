@@ -87,71 +87,55 @@ class MockSentryTestCase(TestCase):
             ran.check_returncode()
         return ran
 
-    def test_guard_decorator(self):
-        ran = self.run_script("./tests/test_scripts/guard_decorator.py")
+    def do_test(self, script, expected_traceback=None, expect_sentry_request=True):
+        ran = self.run_script(script, check=not expected_traceback)
         self.assertEqual(ran.stdout, "expected output\n")
-        request = self.mock_sentry.get_request(0)
-        self.assertEqual(request.method, "POST")
-        self.assertEqual(request.url, f"/api/{self.project_id}/store/")
-        request = self.mock_sentry.get_request(1)
-        self.assertIsNone(request)
+        if expected_traceback:
+            self.assertEqual(ran.stderr, expected_traceback)
+        if expect_sentry_request:
+            request = self.mock_sentry.get_request(0)
+            self.assertEqual(request.method, "POST")
+            self.assertEqual(request.url, f"/api/{self.project_id}/store/")
+            request = self.mock_sentry.get_request(1)
+            self.assertIsNone(request)
+        else:
+            request = self.mock_sentry.get_request(0)
+            self.assertIsNone(request)
+
+    def test_guard_decorator(self):
+        self.do_test("./tests/test_scripts/guard_decorator.py")
 
     def test_guard_context_manager(self):
-        ran = self.run_script("./tests/test_scripts/guard_context_manager.py")
-        self.assertEqual(ran.stdout, "expected output\n")
-        request = self.mock_sentry.get_request(0)
-        self.assertEqual(request.method, "POST")
-        self.assertEqual(request.url, f"/api/{self.project_id}/store/")
-        request = self.mock_sentry.get_request(1)
-        self.assertIsNone(request)
+        self.do_test("./tests/test_scripts/guard_context_manager.py")
 
     def test_no_guard(self):
-        ran = self.run_script("./tests/test_scripts/noguard.py", check=False)
-        self.assertEqual(ran.stdout, "expected output\n")
-        self.assertEqual(ran.stderr, NOGUARD_EXPECTED_TRACEBACK)
-        request = self.mock_sentry.get_request(0)
-        self.assertEqual(request.method, "POST")
-        self.assertEqual(request.url, f"/api/{self.project_id}/store/")
-        request = self.mock_sentry.get_request(1)
-        self.assertIsNone(request)
+        self.do_test("./tests/test_scripts/noguard.py", NOGUARD_EXPECTED_TRACEBACK)
 
     def test_guard_decorator_no_error(self):
-        ran = self.run_script("./tests/test_scripts/guard_decorator_no_error.py")
-        self.assertEqual(ran.stdout, "expected output\n")
-        request = self.mock_sentry.get_request(0)
-        self.assertIsNone(request)
+        self.do_test("./tests/test_scripts/guard_decorator_no_error.py", expect_sentry_request=False)
 
     def test_guard_context_manager_no_error(self):
-        ran = self.run_script("./tests/test_scripts/guard_context_manager_no_error.py")
-        self.assertEqual(ran.stdout, "expected output\n")
-        request = self.mock_sentry.get_request(0)
-        self.assertIsNone(request)
+        self.do_test("./tests/test_scripts/guard_context_manager_no_error.py", expect_sentry_request=False)
 
     def test_guard_decorator_no_init(self):
-        ran = self.run_script("./tests/test_scripts/guard_decorator_no_init.py", check=False)
-        self.assertEqual(ran.stdout, "expected output\n")
-        self.assertEqual(ran.stderr, GUARD_DECORATOR_NO_INIT_EXPECTED_TRACEBACK)
-        request = self.mock_sentry.get_request(0)
-        self.assertIsNone(request)
+        self.do_test(
+            "./tests/test_scripts/guard_decorator_no_init.py",
+            expected_traceback=GUARD_DECORATOR_NO_INIT_EXPECTED_TRACEBACK,
+            expect_sentry_request=False,
+        )
 
     def test_guard_context_manager_no_init(self):
-        ran = self.run_script("./tests/test_scripts/guard_context_manager_no_init.py", check=False)
-        self.assertEqual(ran.stdout, "expected output\n")
-        self.assertEqual(ran.stderr, GUARD_CONTEXT_MANAGER_NO_INIT_EXPECTED_TRACEBACK)
-        request = self.mock_sentry.get_request(0)
-        self.assertIsNone(request)
+        self.do_test(
+            "./tests/test_scripts/guard_context_manager_no_init.py",
+            expected_traceback=GUARD_CONTEXT_MANAGER_NO_INIT_EXPECTED_TRACEBACK,
+            expect_sentry_request=False,
+        )
 
     def test_cwd_config(self):
         with open("./tests/test_scripts/sentry_config.json", "r") as src:
             with open("./sentry_config.json", "w") as dest:
                 dest.write(src.read())
         try:
-            ran = self.run_script("./tests/test_scripts/cwd_config.py")
-            self.assertEqual(ran.stdout, "expected output\n")
-            request = self.mock_sentry.get_request(0)
-            self.assertEqual(request.method, "POST")
-            self.assertEqual(request.url, f"/api/{self.project_id}/store/")
-            request = self.mock_sentry.get_request(1)
-            self.assertIsNone(request)
+            self.do_test("./tests/test_scripts/cwd_config.py")
         finally:
             os.unlink("./sentry_config.json")
