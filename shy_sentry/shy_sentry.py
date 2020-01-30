@@ -3,8 +3,9 @@ import json
 from functools import wraps
 from typing import ContextManager
 
-import sentry_sdk
+from sentry_sdk import init as sentry_sdk_init
 from sentry_sdk import Hub
+from sentry_sdk import serializer
 from sentry_sdk._types import MYPY
 from sentry_sdk.integrations.argv import ArgvIntegration
 from sentry_sdk.integrations.atexit import AtexitIntegration
@@ -21,6 +22,12 @@ if MYPY:  # pragma: no cover
 
 def default_callback(*args, **kwargs):
     pass  # pragma: no cover
+
+
+def patch_sentry():
+    # https://github.com/arrai-innovations/shy-sentry/issues/1
+    serializer.MAX_DATABAG_BREADTH = 50
+    serializer.MAX_DATABAG_DEPTH = 20
 
 
 def init(config_path=None, **kwargs):
@@ -56,7 +63,10 @@ def init(config_path=None, **kwargs):
             sentry_kwargs["integrations"].extend(kwargs.pop("integrations"))
             kwargs.pop("integrations")
     sentry_kwargs.update(kwargs)
-    sentry_sdk.init(**sentry_kwargs)
+
+    patch_sentry()
+
+    sentry_sdk_init(**sentry_kwargs)
 
 
 class Guard(ContextManager):
