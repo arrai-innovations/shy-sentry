@@ -3,6 +3,7 @@ import os
 import subprocess
 from time import sleep
 from unittest import TestCase
+from shy_sentry import shy_sentry
 
 import psutil
 from pretenders.client.http import HTTPMock
@@ -15,10 +16,10 @@ NOGUARD_EXPECTED_TRACEBACK = """Traceback (most recent call last):
 ZeroDivisionError: division by zero
 """
 
-GUARD_DECORATOR_NO_INIT_EXPECTED_TRACEBACK = """Traceback (most recent call last):
+GUARD_DECORATOR_NO_INIT_EXPECTED_TRACEBACK = f"""Traceback (most recent call last):
   File "./tests/test_scripts/guard_decorator_no_init.py", line 17, in <module>
     main()
-  File "/home/joel/PycharmProjects/shy-sentry/shy_sentry/shy_sentry.py", line 69, in guarding
+  File "{shy_sentry.__file__}", line 69, in guarding
     return guarded(*args, **kwargs)
   File "./tests/test_scripts/guard_decorator_no_init.py", line 13, in main
     print(1 / 0)
@@ -71,7 +72,7 @@ class MockSentryTestCase(TestCase):
         super().tearDownClass()
 
     @classmethod
-    def subcmd_with_coverage(cls, cmd, check=True):
+    def run_script(cls, cmd, check=True):
         kwargs = {
             "shell": True,
             "stdout": subprocess.PIPE,
@@ -80,14 +81,14 @@ class MockSentryTestCase(TestCase):
             "encoding": "utf8",
             "timeout": 15,
         }
-        cmd = "coverage run -p " + cmd
+        cmd = "python " + cmd
         ran = subprocess.run(cmd, **kwargs)
         if check:
             ran.check_returncode()
         return ran
 
     def test_guard_decorator(self):
-        ran = self.subcmd_with_coverage("./tests/test_scripts/guard_decorator.py")
+        ran = self.run_script("./tests/test_scripts/guard_decorator.py")
         self.assertEqual(ran.stdout, "expected output\n")
         request = self.mock_sentry.get_request(0)
         self.assertEqual(request.method, "POST")
@@ -96,7 +97,7 @@ class MockSentryTestCase(TestCase):
         self.assertIsNone(request)
 
     def test_guard_context_manager(self):
-        ran = self.subcmd_with_coverage("./tests/test_scripts/guard_context_manager.py")
+        ran = self.run_script("./tests/test_scripts/guard_context_manager.py")
         self.assertEqual(ran.stdout, "expected output\n")
         request = self.mock_sentry.get_request(0)
         self.assertEqual(request.method, "POST")
@@ -105,7 +106,7 @@ class MockSentryTestCase(TestCase):
         self.assertIsNone(request)
 
     def test_no_guard(self):
-        ran = self.subcmd_with_coverage("./tests/test_scripts/noguard.py", check=False)
+        ran = self.run_script("./tests/test_scripts/noguard.py", check=False)
         self.assertEqual(ran.stdout, "expected output\n")
         self.assertEqual(ran.stderr, NOGUARD_EXPECTED_TRACEBACK)
         request = self.mock_sentry.get_request(0)
@@ -115,26 +116,26 @@ class MockSentryTestCase(TestCase):
         self.assertIsNone(request)
 
     def test_guard_decorator_no_error(self):
-        ran = self.subcmd_with_coverage("./tests/test_scripts/guard_decorator_no_error.py")
+        ran = self.run_script("./tests/test_scripts/guard_decorator_no_error.py")
         self.assertEqual(ran.stdout, "expected output\n")
         request = self.mock_sentry.get_request(0)
         self.assertIsNone(request)
 
     def test_guard_context_manager_no_error(self):
-        ran = self.subcmd_with_coverage("./tests/test_scripts/guard_context_manager_no_error.py")
+        ran = self.run_script("./tests/test_scripts/guard_context_manager_no_error.py")
         self.assertEqual(ran.stdout, "expected output\n")
         request = self.mock_sentry.get_request(0)
         self.assertIsNone(request)
 
     def test_guard_decorator_no_init(self):
-        ran = self.subcmd_with_coverage("./tests/test_scripts/guard_decorator_no_init.py", check=False)
+        ran = self.run_script("./tests/test_scripts/guard_decorator_no_init.py", check=False)
         self.assertEqual(ran.stdout, "expected output\n")
         self.assertEqual(ran.stderr, GUARD_DECORATOR_NO_INIT_EXPECTED_TRACEBACK)
         request = self.mock_sentry.get_request(0)
         self.assertIsNone(request)
 
     def test_guard_context_manager_no_init(self):
-        ran = self.subcmd_with_coverage("./tests/test_scripts/guard_context_manager_no_init.py", check=False)
+        ran = self.run_script("./tests/test_scripts/guard_context_manager_no_init.py", check=False)
         self.assertEqual(ran.stdout, "expected output\n")
         self.assertEqual(ran.stderr, GUARD_CONTEXT_MANAGER_NO_INIT_EXPECTED_TRACEBACK)
         request = self.mock_sentry.get_request(0)
@@ -145,7 +146,7 @@ class MockSentryTestCase(TestCase):
             with open("./sentry_config.json", "w") as dest:
                 dest.write(src.read())
         try:
-            ran = self.subcmd_with_coverage("./tests/test_scripts/cwd_config.py")
+            ran = self.run_script("./tests/test_scripts/cwd_config.py")
             self.assertEqual(ran.stdout, "expected output\n")
             request = self.mock_sentry.get_request(0)
             self.assertEqual(request.method, "POST")
