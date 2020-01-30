@@ -1,7 +1,7 @@
 # shy-sentry
 sentry-sdk but silent
 
-![Shh.](./shy-sentry.png)
+![Shh.](https://docs.arrai-dev.com/shy-sentry/shy-sentry.png)
 > Shh.
 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=for-the-badge)](https://github.com/psf/black)
