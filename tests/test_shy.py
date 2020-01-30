@@ -53,7 +53,7 @@ class MockSentryTestCase(TestCase):
         super().tearDownClass()
 
     @classmethod
-    def subcmd(cls, cmd, check=True, coverage=False):
+    def subcmd_with_coverage(cls, cmd, check=True):
         kwargs = {
             "shell": True,
             "stdout": subprocess.PIPE,
@@ -62,32 +62,14 @@ class MockSentryTestCase(TestCase):
             "encoding": "utf8",
             "timeout": 15,
         }
-        if coverage:
-            cmd = "coverage run -p " + cmd
-        try:
-            ran = subprocess.run(cmd, **kwargs)
-            if check:
-                try:
-                    ran.check_returncode()
-                except subprocess.CalledProcessError:
-                    print("cmd", cmd)
-                    if ran.stdout:
-                        print("stdout", ran.stdout)
-                    if ran.stderr:
-                        print("stderr", ran.stderr)
-                    raise
-        except subprocess.TimeoutExpired as e:
-            print("cmd", e.cmd)
-            if e.stdout:
-                print("stdout", e.stdout)
-            if e.stderr:
-                print("stderr", e.stderr)
-            raise
-
+        cmd = "coverage run -p " + cmd
+        ran = subprocess.run(cmd, **kwargs)
+        if check:
+            ran.check_returncode()
         return ran
 
     def test_guard_decorator(self):
-        ran = self.subcmd("./tests/test_scripts/guard_decorator.py", coverage=True)
+        ran = self.subcmd_with_coverage("./tests/test_scripts/guard_decorator.py")
         self.assertEqual(ran.stdout, "expected output\n")
         request = self.mock_sentry.get_request(0)
         self.assertEqual(request.method, "POST")
@@ -96,7 +78,7 @@ class MockSentryTestCase(TestCase):
         self.assertIsNone(request)
 
     def test_guard_context_manager(self):
-        ran = self.subcmd("./tests/test_scripts/guard_context_manager.py", coverage=True)
+        ran = self.subcmd_with_coverage("./tests/test_scripts/guard_context_manager.py")
         self.assertEqual(ran.stdout, "expected output\n")
         request = self.mock_sentry.get_request(0)
         self.assertEqual(request.method, "POST")
@@ -105,7 +87,7 @@ class MockSentryTestCase(TestCase):
         self.assertIsNone(request)
 
     def test_no_guard(self):
-        ran = self.subcmd("./tests/test_scripts/noguard.py", check=False, coverage=True)
+        ran = self.subcmd_with_coverage("./tests/test_scripts/noguard.py", check=False)
         self.assertEqual(ran.stdout, "expected output\n")
         self.assertEqual(ran.stderr, EXPECTED_TRACEBACK)
         request = self.mock_sentry.get_request(0)
