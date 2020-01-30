@@ -17,7 +17,7 @@ setup(
     long_description_content_type="text/markdown",
     author="Arrai Innovations",
     author_email="support@arrai.com",
-    packages=["shy-sentry"],
+    packages=["shy_sentry"],
     install_requires=install_requires,
     license="LICENSE",
     # test_suite="tests",
