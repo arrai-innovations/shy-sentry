@@ -50,7 +50,7 @@ class MockSentryTestCase(TestCase):
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
-        sleep(0.5)
+        sleep(1)
         cls.mock_sentry = HTTPMock("127.0.0.1", 8888, name="mock_sentry")
 
     def setUp(self) -> None:
