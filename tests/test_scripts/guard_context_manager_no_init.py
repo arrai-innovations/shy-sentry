@@ -13,6 +13,5 @@ def main():
 
 
 if __name__ == "__main__":  # pragma: no branch
-    shy_sentry.init(config_path="./tests/test_scripts/sentry_config.json")
     with shy_sentry.Guard():
         main()

@@ -8,8 +8,6 @@ import shy_sentry  # noqa: E402
 
 def main():
     print("expected output")
-    # raises ZeroDivisionError
-    print(1 / 0)
 
 
 if __name__ == "__main__":  # pragma: no branch

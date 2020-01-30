@@ -6,13 +6,11 @@ sys.path.append(os.getcwd())
 import shy_sentry  # noqa: E402
 
 
+@shy_sentry.Guard()
 def main():
     print("expected output")
-    # raises ZeroDivisionError
-    print(1 / 0)
 
 
 if __name__ == "__main__":  # pragma: no branch
     shy_sentry.init(config_path="./tests/test_scripts/sentry_config.json")
-    with shy_sentry.Guard():
-        main()
+    main()

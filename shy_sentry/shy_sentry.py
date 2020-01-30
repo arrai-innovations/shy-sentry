@@ -15,8 +15,12 @@ from sentry_sdk.integrations.modules import ModulesIntegration
 from sentry_sdk.integrations.stdlib import StdlibIntegration
 from sentry_sdk.integrations.threading import ThreadingIntegration
 
-if MYPY:
+if MYPY:  # pragma: no cover
     from sentry_sdk._types import ExcInfo
+
+
+def default_callback(*args, **kwargs):
+    pass  # pragma: no cover
 
 
 def init(config_path=None):
@@ -24,9 +28,6 @@ def init(config_path=None):
         config_path = "./sentry_config.json"
     with open(config_path, "r") as sentry_config_file:
         sentry_config = json.load(sentry_config_file)
-
-        def my_callback(*args, **kwargs):
-            pass
 
         sentry_sdk.init(
             dsn=sentry_config["SENTRY_DSN"],
@@ -38,7 +39,7 @@ def init(config_path=None):
                 StdlibIntegration(),
                 ExcepthookIntegration(),
                 DedupeIntegration(),
-                AtexitIntegration(callback=my_callback),
+                AtexitIntegration(callback=default_callback),
                 ModulesIntegration(),
                 ArgvIntegration(),
                 ThreadingIntegration(),
@@ -54,8 +55,11 @@ class Guard(ContextManager):
         exc_info = (exc_type, exc_val, exc_tb) if exc_type else None  # type: ExcInfo
         if exc_info:
             hub = Hub.current
-            if hub is not None:
+            if hub.client:
                 hub.capture_exception(exc_info)
+            else:
+                # go loud if not configured.
+                return False
         return True
 
     def __call__(self, guarded):

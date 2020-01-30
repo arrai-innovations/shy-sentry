@@ -7,10 +7,28 @@ from unittest import TestCase
 import psutil
 from pretenders.client.http import HTTPMock
 
-EXPECTED_TRACEBACK = """Traceback (most recent call last):
+NOGUARD_EXPECTED_TRACEBACK = """Traceback (most recent call last):
   File "./tests/test_scripts/noguard.py", line 17, in <module>
     main()
   File "./tests/test_scripts/noguard.py", line 12, in main
+    print(1 / 0)
+ZeroDivisionError: division by zero
+"""
+
+GUARD_DECORATOR_NO_INIT_EXPECTED_TRACEBACK = """Traceback (most recent call last):
+  File "./tests/test_scripts/guard_decorator_no_init.py", line 17, in <module>
+    main()
+  File "/home/joel/PycharmProjects/shy-sentry/shy_sentry/shy_sentry.py", line 69, in guarding
+    return guarded(*args, **kwargs)
+  File "./tests/test_scripts/guard_decorator_no_init.py", line 13, in main
+    print(1 / 0)
+ZeroDivisionError: division by zero
+"""
+
+GUARD_CONTEXT_MANAGER_NO_INIT_EXPECTED_TRACEBACK = """Traceback (most recent call last):
+  File "./tests/test_scripts/guard_context_manager_no_init.py", line 17, in <module>
+    main()
+  File "./tests/test_scripts/guard_context_manager_no_init.py", line 12, in main
     print(1 / 0)
 ZeroDivisionError: division by zero
 """
@@ -89,9 +107,39 @@ class MockSentryTestCase(TestCase):
     def test_no_guard(self):
         ran = self.subcmd_with_coverage("./tests/test_scripts/noguard.py", check=False)
         self.assertEqual(ran.stdout, "expected output\n")
-        self.assertEqual(ran.stderr, EXPECTED_TRACEBACK)
+        self.assertEqual(ran.stderr, NOGUARD_EXPECTED_TRACEBACK)
         request = self.mock_sentry.get_request(0)
         self.assertEqual(request.method, "POST")
         self.assertEqual(request.url, f"/api/{self.project_id}/store/")
         request = self.mock_sentry.get_request(1)
+        self.assertIsNone(request)
+
+    def test_guard_decorator_no_error(self):
+        ran = self.subcmd_with_coverage("./tests/test_scripts/guard_decorator_no_error.py")
+        self.assertEqual(ran.stdout, "expected output\n")
+        request = self.mock_sentry.get_request(0)
+        self.assertIsNone(request)
+
+    def test_guard_context_manager_no_error(self):
+        ran = self.subcmd_with_coverage("./tests/test_scripts/guard_context_manager_no_error.py")
+        self.assertEqual(ran.stdout, "expected output\n")
+        request = self.mock_sentry.get_request(0)
+        self.assertIsNone(request)
+
+    def test_guard_decorator_no_init(self):
+        ran = self.subcmd_with_coverage("./tests/test_scripts/guard_decorator_no_init.py", check=False)
+        self.assertEqual(ran.stdout, "expected output\n")
+        self.assertEqual(ran.stderr, GUARD_DECORATOR_NO_INIT_EXPECTED_TRACEBACK)
+        request = self.mock_sentry.get_request(0)
+        self.assertIsNone(request)
+
+    def test_guard_context_manager_no_init(self):
+        ran = self.subcmd_with_coverage("./tests/test_scripts/guard_context_manager_no_init.py", check=False)
+        self.assertEqual(ran.stdout, "expected output\n")
+        self.assertEqual(ran.stderr, GUARD_CONTEXT_MANAGER_NO_INIT_EXPECTED_TRACEBACK)
+        request = self.mock_sentry.get_request(0)
+        self.assertIsNone(request)
+        self.assertEqual(ran.stdout, "expected output\n")
+        self.assertEqual(ran.stderr, EXPECTED_TRACEBACK)
+        request = self.mock_sentry.get_request(0)
         self.assertIsNone(request)
