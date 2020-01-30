@@ -3,36 +3,9 @@ import os
 import subprocess
 from time import sleep
 from unittest import TestCase
-from shy_sentry import shy_sentry
 
 import psutil
 from pretenders.client.http import HTTPMock
-
-NOGUARD_EXPECTED_TRACEBACK = """Traceback (most recent call last):
-  File "./tests/test_scripts/noguard.py", line 17, in <module>
-    main()
-  File "./tests/test_scripts/noguard.py", line 12, in main
-    print(1 / 0)
-ZeroDivisionError: division by zero
-"""
-
-GUARD_DECORATOR_NO_INIT_EXPECTED_TRACEBACK = f"""Traceback (most recent call last):
-  File "./tests/test_scripts/guard_decorator_no_init.py", line 17, in <module>
-    main()
-  File "{shy_sentry.__file__}", line 69, in guarding
-    return guarded(*args, **kwargs)
-  File "./tests/test_scripts/guard_decorator_no_init.py", line 13, in main
-    print(1 / 0)
-ZeroDivisionError: division by zero
-"""
-
-GUARD_CONTEXT_MANAGER_NO_INIT_EXPECTED_TRACEBACK = """Traceback (most recent call last):
-  File "./tests/test_scripts/guard_context_manager_no_init.py", line 17, in <module>
-    main()
-  File "./tests/test_scripts/guard_context_manager_no_init.py", line 12, in main
-    print(1 / 0)
-ZeroDivisionError: division by zero
-"""
 
 
 class MockSentryTestCase(TestCase):
@@ -87,12 +60,13 @@ class MockSentryTestCase(TestCase):
             ran.check_returncode()
         return ran
 
-    def do_test(self, script, expected_traceback=None, expect_sentry_request=True):
-        ran = self.run_script(script, check=not expected_traceback)
+    def do_test(self, script, expect_traceback=False, expect_request=True):
+        ran = self.run_script(script, check=not expect_traceback)
         self.assertEqual(ran.stdout, "expected output\n")
-        if expected_traceback:
-            self.assertEqual(ran.stderr, expected_traceback)
-        if expect_sentry_request:
+        if expect_traceback:
+            stderr = ran.stderr.strip("\n").split("\n")
+            self.assertEqual(stderr[-1] if stderr else None, "ZeroDivisionError: division by zero")
+        if expect_request:
             request = self.mock_sentry.get_request(0)
             self.assertEqual(request.method, "POST")
             self.assertEqual(request.url, f"/api/{self.project_id}/store/")
@@ -109,26 +83,22 @@ class MockSentryTestCase(TestCase):
         self.do_test("./tests/test_scripts/guard_context_manager.py")
 
     def test_no_guard(self):
-        self.do_test("./tests/test_scripts/noguard.py", NOGUARD_EXPECTED_TRACEBACK)
+        self.do_test("./tests/test_scripts/noguard.py", expect_traceback=True)
 
     def test_guard_decorator_no_error(self):
-        self.do_test("./tests/test_scripts/guard_decorator_no_error.py", expect_sentry_request=False)
+        self.do_test("./tests/test_scripts/guard_decorator_no_error.py", expect_request=False)
 
     def test_guard_context_manager_no_error(self):
-        self.do_test("./tests/test_scripts/guard_context_manager_no_error.py", expect_sentry_request=False)
+        self.do_test("./tests/test_scripts/guard_context_manager_no_error.py", expect_request=False)
 
     def test_guard_decorator_no_init(self):
         self.do_test(
-            "./tests/test_scripts/guard_decorator_no_init.py",
-            expected_traceback=GUARD_DECORATOR_NO_INIT_EXPECTED_TRACEBACK,
-            expect_sentry_request=False,
+            "./tests/test_scripts/guard_decorator_no_init.py", expect_traceback=True, expect_request=False,
         )
 
     def test_guard_context_manager_no_init(self):
         self.do_test(
-            "./tests/test_scripts/guard_context_manager_no_init.py",
-            expected_traceback=GUARD_CONTEXT_MANAGER_NO_INIT_EXPECTED_TRACEBACK,
-            expect_sentry_request=False,
+            "./tests/test_scripts/guard_context_manager_no_init.py", expect_traceback=True, expect_request=False,
         )
 
     def test_cwd_config(self):
