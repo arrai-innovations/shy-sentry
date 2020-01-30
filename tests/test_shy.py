@@ -139,7 +139,18 @@ class MockSentryTestCase(TestCase):
         self.assertEqual(ran.stderr, GUARD_CONTEXT_MANAGER_NO_INIT_EXPECTED_TRACEBACK)
         request = self.mock_sentry.get_request(0)
         self.assertIsNone(request)
-        self.assertEqual(ran.stdout, "expected output\n")
-        self.assertEqual(ran.stderr, EXPECTED_TRACEBACK)
-        request = self.mock_sentry.get_request(0)
-        self.assertIsNone(request)
+
+    def test_cwd_config(self):
+        with open("./tests/test_scripts/sentry_config.json", "r") as src:
+            with open("./sentry_config.json", "w") as dest:
+                dest.write(src.read())
+        try:
+            ran = self.subcmd_with_coverage("./tests/test_scripts/cwd_config.py")
+            self.assertEqual(ran.stdout, "expected output\n")
+            request = self.mock_sentry.get_request(0)
+            self.assertEqual(request.method, "POST")
+            self.assertEqual(request.url, f"/api/{self.project_id}/store/")
+            request = self.mock_sentry.get_request(1)
+            self.assertIsNone(request)
+        finally:
+            os.unlink("./sentry_config.json")
