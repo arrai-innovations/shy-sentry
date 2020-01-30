@@ -23,28 +23,40 @@ def default_callback(*args, **kwargs):
     pass  # pragma: no cover
 
 
-def init(config_path=None):
+def init(config_path=None, **kwargs):
     if not config_path:
         config_path = "./sentry_config.json"
     with open(config_path, "r") as sentry_config_file:
         sentry_config = json.load(sentry_config_file)
 
-        sentry_sdk.init(
-            dsn=sentry_config["SENTRY_DSN"],
-            environment=sentry_config["SENTRY_ENVIRONMENT"],
-            release=sentry_config["SENTRY_RELEASE_STRING"],
-            default_integrations=False,
-            integrations=[
-                LoggingIntegration(),
-                StdlibIntegration(),
-                ExcepthookIntegration(),
-                DedupeIntegration(),
-                AtexitIntegration(callback=default_callback),
-                ModulesIntegration(),
-                ArgvIntegration(),
-                ThreadingIntegration(),
-            ],
+    sentry_kwargs = {
+        "dsn": sentry_config["SENTRY_DSN"],
+        "environment": sentry_config["SENTRY_ENVIRONMENT"],
+        "release": sentry_config["SENTRY_RELEASE_STRING"],
+    }
+    # if you don't want to do stuff to default integrations, user our modified defaults that make things quiet
+    # otherwise, you are on your own to pass kwargs.
+    if "default_integrations" not in kwargs:
+        sentry_kwargs.update(
+            {
+                "default_integrations": False,
+                "integrations": [
+                    LoggingIntegration(),
+                    StdlibIntegration(),
+                    ExcepthookIntegration(),
+                    DedupeIntegration(),
+                    AtexitIntegration(callback=default_callback),
+                    ModulesIntegration(),
+                    ArgvIntegration(),
+                    ThreadingIntegration(),
+                ],
+            }
         )
+        if "integrations" in kwargs:
+            sentry_kwargs["integrations"].extend(kwargs.pop("integrations"))
+            kwargs.pop("integrations")
+    sentry_kwargs.update(kwargs)
+    sentry_sdk.init(**sentry_kwargs)
 
 
 class Guard(ContextManager):
