@@ -61,7 +61,6 @@ def init(config_path=None, **kwargs):
         )
         if "integrations" in kwargs:
             sentry_kwargs["integrations"].extend(kwargs.pop("integrations"))
-            kwargs.pop("integrations")
     sentry_kwargs.update(kwargs)
 
     patch_sentry()
