@@ -1,10 +1,10 @@
 # Copyright (C) 2020 Arrai Innovations Inc. - All Rights Reserved
 import json
+from contextlib import AbstractContextManager
 from functools import wraps
-from typing import ContextManager
 
-from sentry_sdk import init as sentry_sdk_init
 from sentry_sdk import Hub
+from sentry_sdk import init as sentry_sdk_init
 from sentry_sdk import serializer
 from sentry_sdk._types import MYPY
 from sentry_sdk.integrations.argv import ArgvIntegration
@@ -30,6 +30,19 @@ def patch_sentry():
     serializer.MAX_DATABAG_DEPTH = 20
 
 
+def get_our_default_integrations():
+    return [
+        LoggingIntegration(),
+        StdlibIntegration(),
+        ExcepthookIntegration(),
+        DedupeIntegration(),
+        AtexitIntegration(callback=default_callback),
+        ModulesIntegration(),
+        ArgvIntegration(),
+        ThreadingIntegration(),
+    ]
+
+
 def init(config_path=None, **kwargs):
     if not config_path:
         config_path = "./sentry_config.json"
@@ -44,24 +57,9 @@ def init(config_path=None, **kwargs):
     # if you don't want to do stuff to default integrations, user our modified defaults that make things quiet
     # otherwise, you are on your own to pass kwargs.
     if "default_integrations" not in kwargs:
-        sentry_kwargs.update(
-            {
-                "default_integrations": False,
-                "integrations": [
-                    LoggingIntegration(),
-                    StdlibIntegration(),
-                    ExcepthookIntegration(),
-                    DedupeIntegration(),
-                    AtexitIntegration(callback=default_callback),
-                    ModulesIntegration(),
-                    ArgvIntegration(),
-                    ThreadingIntegration(),
-                ],
-            }
-        )
+        sentry_kwargs.update({"default_integrations": False, "integrations": get_our_default_integrations()})
         if "integrations" in kwargs:
             sentry_kwargs["integrations"].extend(kwargs.pop("integrations"))
-            kwargs.pop("integrations")
     sentry_kwargs.update(kwargs)
 
     patch_sentry()
@@ -69,7 +67,7 @@ def init(config_path=None, **kwargs):
     sentry_sdk_init(**sentry_kwargs)
 
 
-class Guard(ContextManager):
+class Guard(AbstractContextManager):
     def __enter__(self):
         pass
 
