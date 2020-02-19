@@ -1,8 +1,10 @@
 # Copyright (C) 2020 Arrai Innovations Inc. - All Rights Reserved
 import os
 import subprocess
+from contextlib import AbstractContextManager
 from time import sleep
 from unittest import TestCase
+from unittest.mock import patch
 
 import psutil
 from pretenders.client.http import HTTPMock
@@ -109,3 +111,53 @@ class MockSentryTestCase(TestCase):
             self.do_test("./tests/test_scripts/cwd_config.py")
         finally:
             os.unlink("./sentry_config.json")
+
+
+@patch("shy_sentry.shy_sentry.sentry_sdk_init")
+class MockSentrySdkTestCase(TestCase):
+    def test_add_integrations(self, mocked_sentry_sdk_init):
+        from shy_sentry import init
+        from shy_sentry.shy_sentry import get_our_default_integrations
+        from sentry_sdk.integrations.redis import RedisIntegration
+
+        default_integrations = get_our_default_integrations()
+        integrations = [RedisIntegration()]
+        init(integrations=integrations, config_path="./tests/test_scripts/sentry_config.json")
+        mocked_sentry_sdk_init.assert_called_once()
+        self.assertEqual(len(mocked_sentry_sdk_init.call_args_list[0]), 2)
+        call_args, call_kwargs = mocked_sentry_sdk_init.call_args_list[0]
+        self.assertTupleEqual(call_args, ())
+        self.assertSetEqual(
+            {"default_integrations", "dsn", "environment", "integrations", "release"}, set(call_kwargs.keys()),
+        )
+        self.assertEqual(call_kwargs["default_integrations"], False)
+        self.assertEqual(call_kwargs["dsn"], "http://client_key@localhost:8888/mockhttp/mock_sentry/123456")
+        self.assertEqual(call_kwargs["environment"], "dev")
+        self.assertEqual(call_kwargs["release"], "project:branch@version")
+        self.assertSetEqual(
+            {x.__class__ for x in call_kwargs["integrations"]},
+            {x.__class__ for x in default_integrations + integrations},
+        )
+
+    def test_no_default_integrations(self, mocked_sentry_sdk_init):
+        from shy_sentry import init
+        from sentry_sdk.integrations.redis import RedisIntegration
+
+        integrations = [RedisIntegration()]
+        init(
+            default_integrations=False, integrations=integrations, config_path="./tests/test_scripts/sentry_config.json"
+        )
+        mocked_sentry_sdk_init.assert_called_once()
+        self.assertEqual(len(mocked_sentry_sdk_init.call_args_list[0]), 2)
+        call_args, call_kwargs = mocked_sentry_sdk_init.call_args_list[0]
+        self.assertTupleEqual(call_args, ())
+        self.assertSetEqual(
+            {"default_integrations", "dsn", "environment", "integrations", "release"}, set(call_kwargs.keys()),
+        )
+        self.assertEqual(call_kwargs["default_integrations"], False)
+        self.assertEqual(call_kwargs["dsn"], "http://client_key@localhost:8888/mockhttp/mock_sentry/123456")
+        self.assertEqual(call_kwargs["environment"], "dev")
+        self.assertEqual(call_kwargs["release"], "project:branch@version")
+        self.assertSetEqual(
+            {x.__class__ for x in call_kwargs["integrations"]}, {x.__class__ for x in integrations},
+        )
