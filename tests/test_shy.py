@@ -1,7 +1,6 @@
 # Copyright (C) 2020 Arrai Innovations Inc. - All Rights Reserved
 import os
 import subprocess
-from contextlib import AbstractContextManager
 from time import sleep
 from unittest import TestCase
 from unittest.mock import patch
@@ -131,7 +130,7 @@ class MockSentrySdkTestCase(TestCase):
         self.assertSetEqual(
             {"default_integrations", "dsn", "environment", "integrations", "release"}, set(call_kwargs.keys()),
         )
-        self.assertEqual(call_kwargs["default_integrations"], False)
+        self.assertFalse(call_kwargs["default_integrations"])
         self.assertEqual(call_kwargs["dsn"], "http://client_key@localhost:8888/mockhttp/mock_sentry/123456")
         self.assertEqual(call_kwargs["environment"], "dev")
         self.assertEqual(call_kwargs["release"], "project:branch@version")
@@ -155,7 +154,7 @@ class MockSentrySdkTestCase(TestCase):
         self.assertSetEqual(
             {"default_integrations", "dsn", "environment", "integrations", "release"}, set(call_kwargs.keys()),
         )
-        self.assertEqual(call_kwargs["default_integrations"], False)
+        self.assertFalse(call_kwargs["default_integrations"])
         self.assertEqual(call_kwargs["dsn"], "http://client_key@localhost:8888/mockhttp/mock_sentry/123456")
         self.assertEqual(call_kwargs["environment"], "dev")
         self.assertEqual(call_kwargs["release"], "project:branch@version")
