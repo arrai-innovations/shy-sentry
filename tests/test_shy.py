@@ -117,10 +117,11 @@ class MockSentryTestCase(TestCase):
 class MockSentrySdkTestCase(TestCase):
     def test_add_integrations(self, mocked_sentry_sdk_init):
         from shy_sentry import init
-        from shy_sentry.shy_sentry import get_our_default_integrations
         from sentry_sdk.integrations.redis import RedisIntegration
 
-        default_integrations = get_our_default_integrations()
+        default_integrations = [
+            integration(*args, **kwargs) for integration, args, kwargs in init.get_default_integrations()
+        ]
         integrations = [RedisIntegration()]
         init(integrations=integrations, config_path="./tests/test_scripts/sentry_config.json")
         mocked_sentry_sdk_init.assert_called_once()
