@@ -1,7 +1,7 @@
 # shy-sentry
 sentry-sdk but silent
 
-> ![Shh.](https://docs.arrai-dev.com/shy-sentry/shy-sentry.png)
+> ![Shh.](https://docs.arrai-dev.com/shy-sentry/readme/shy-sentry.png)
 >
 > Shh.
 
