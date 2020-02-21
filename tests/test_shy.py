@@ -111,6 +111,9 @@ class MockSentryTestCase(TestCase):
         finally:
             os.unlink("./sentry_config.json")
 
+    def test_no_config(self):
+        self.do_test("./tests/test_scripts/no_config.py")
+
 
 @patch("shy_sentry.shy_sentry.sentry_sdk_init")
 class MockSentrySdkTestCase(TestCase):
