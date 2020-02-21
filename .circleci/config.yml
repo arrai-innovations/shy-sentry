@@ -5,17 +5,17 @@ orbs:
 executors:
   python36:
     environment:
-        LANG: en_US.UTF-8
+        LANG: C.UTF-8
     docker:
      - image: circleci/python:3.6
   python37:
     environment:
-        LANG: en_US.UTF-8
+        LANG: C.UTF-8
     docker:
      - image: circleci/python:3.7
   python38:
     environment:
-        LANG: en_US.UTF-8
+        LANG: C.UTF-8
     docker:
      - image: circleci/python:3.8
 jobs:
