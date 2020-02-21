@@ -1,7 +1,6 @@
 # Copyright (C) 2020 Arrai Innovations Inc. - All Rights Reserved
 import os
 import subprocess
-from contextlib import AbstractContextManager
 from time import sleep
 from unittest import TestCase
 from unittest.mock import patch
@@ -112,15 +111,19 @@ class MockSentryTestCase(TestCase):
         finally:
             os.unlink("./sentry_config.json")
 
+    def test_no_config(self):
+        self.do_test("./tests/test_scripts/no_config.py")
+
 
 @patch("shy_sentry.shy_sentry.sentry_sdk_init")
 class MockSentrySdkTestCase(TestCase):
     def test_add_integrations(self, mocked_sentry_sdk_init):
         from shy_sentry import init
-        from shy_sentry.shy_sentry import get_our_default_integrations
         from sentry_sdk.integrations.redis import RedisIntegration
 
-        default_integrations = get_our_default_integrations()
+        default_integrations = [
+            integration(*args, **kwargs) for integration, args, kwargs in init.get_default_integrations()
+        ]
         integrations = [RedisIntegration()]
         init(integrations=integrations, config_path="./tests/test_scripts/sentry_config.json")
         mocked_sentry_sdk_init.assert_called_once()
@@ -130,7 +133,7 @@ class MockSentrySdkTestCase(TestCase):
         self.assertSetEqual(
             {"default_integrations", "dsn", "environment", "integrations", "release"}, set(call_kwargs.keys()),
         )
-        self.assertEqual(call_kwargs["default_integrations"], False)
+        self.assertFalse(call_kwargs["default_integrations"])
         self.assertEqual(call_kwargs["dsn"], "http://client_key@localhost:8888/mockhttp/mock_sentry/123456")
         self.assertEqual(call_kwargs["environment"], "dev")
         self.assertEqual(call_kwargs["release"], "project:branch@version")
@@ -154,7 +157,7 @@ class MockSentrySdkTestCase(TestCase):
         self.assertSetEqual(
             {"default_integrations", "dsn", "environment", "integrations", "release"}, set(call_kwargs.keys()),
         )
-        self.assertEqual(call_kwargs["default_integrations"], False)
+        self.assertFalse(call_kwargs["default_integrations"])
         self.assertEqual(call_kwargs["dsn"], "http://client_key@localhost:8888/mockhttp/mock_sentry/123456")
         self.assertEqual(call_kwargs["environment"], "dev")
         self.assertEqual(call_kwargs["release"], "project:branch@version")
