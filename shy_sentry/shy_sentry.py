@@ -19,52 +19,66 @@ from sentry_sdk.integrations.threading import ThreadingIntegration
 if MYPY:  # pragma: no cover
     from sentry_sdk._types import ExcInfo
 
-
-def default_callback(*args, **kwargs):
-    pass  # pragma: no cover
+USE_DEFAULT_CONFIG_PATH = object()
 
 
-def patch_sentry():
-    # https://github.com/arrai-innovations/shy-sentry/issues/1
-    serializer.MAX_DATABAG_BREADTH = 50
-    serializer.MAX_DATABAG_DEPTH = 20
+class Init:
+    def at_exit_callback(self, *args, **kwargs):
+        pass  # pragma: no cover
+
+    def patch_sentry(self):
+        # https://github.com/arrai-innovations/shy-sentry/issues/1
+        serializer.MAX_DATABAG_BREADTH = 50
+        serializer.MAX_DATABAG_DEPTH = 20
+
+    def get_default_integrations(self):
+        return [
+            (LoggingIntegration, (), {}),
+            (StdlibIntegration, (), {}),
+            (ExcepthookIntegration, (), {}),
+            (DedupeIntegration, (), {}),
+            (AtexitIntegration, (), {"callback": self.at_exit_callback}),
+            (ModulesIntegration, (), {}),
+            (ArgvIntegration, (), {}),
+            (ThreadingIntegration, (), {}),
+        ]
+
+    def __call__(self, config_path=USE_DEFAULT_CONFIG_PATH, **kwargs):
+        if config_path is USE_DEFAULT_CONFIG_PATH:
+            config_path = "./sentry_config.json"
+        sentry_kwargs = {}
+        if config_path:
+            with open(config_path, "r") as sentry_config_file:
+                sentry_config = json.load(sentry_config_file)
+
+            sentry_kwargs.update(
+                {
+                    "dsn": sentry_config["SENTRY_DSN"],
+                    "environment": sentry_config["SENTRY_ENVIRONMENT"],
+                    "release": sentry_config["SENTRY_RELEASE_STRING"],
+                }
+            )
+        # if you don't want to do stuff to default integrations, use our modified defaults that make things quiet
+        # otherwise, you are on your own to pass kwargs.
+        if "default_integrations" not in kwargs:
+            sentry_kwargs.update(
+                {
+                    "default_integrations": False,
+                    "integrations": [
+                        integration(*args, kwargs) for integration, args, kwargs in self.get_default_integrations()
+                    ],
+                }
+            )
+            if "integrations" in kwargs:
+                sentry_kwargs["integrations"].extend(kwargs.pop("integrations"))
+        sentry_kwargs.update(kwargs)
+
+        self.patch_sentry()
+
+        sentry_sdk_init(**sentry_kwargs)
 
 
-def get_our_default_integrations():
-    return [
-        LoggingIntegration(),
-        StdlibIntegration(),
-        ExcepthookIntegration(),
-        DedupeIntegration(),
-        AtexitIntegration(callback=default_callback),
-        ModulesIntegration(),
-        ArgvIntegration(),
-        ThreadingIntegration(),
-    ]
-
-
-def init(config_path=None, **kwargs):
-    if not config_path:
-        config_path = "./sentry_config.json"
-    with open(config_path, "r") as sentry_config_file:
-        sentry_config = json.load(sentry_config_file)
-
-    sentry_kwargs = {
-        "dsn": sentry_config["SENTRY_DSN"],
-        "environment": sentry_config["SENTRY_ENVIRONMENT"],
-        "release": sentry_config["SENTRY_RELEASE_STRING"],
-    }
-    # if you don't want to do stuff to default integrations, user our modified defaults that make things quiet
-    # otherwise, you are on your own to pass kwargs.
-    if "default_integrations" not in kwargs:
-        sentry_kwargs.update({"default_integrations": False, "integrations": get_our_default_integrations()})
-        if "integrations" in kwargs:
-            sentry_kwargs["integrations"].extend(kwargs.pop("integrations"))
-    sentry_kwargs.update(kwargs)
-
-    patch_sentry()
-
-    sentry_sdk_init(**sentry_kwargs)
+init = Init()
 
 
 class Guard(AbstractContextManager):
