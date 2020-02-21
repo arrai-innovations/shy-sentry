@@ -65,7 +65,7 @@ class Init:
                 {
                     "default_integrations": False,
                     "integrations": [
-                        integration(*args, kwargs) for integration, args, kwargs in self.get_default_integrations()
+                        integration(*args, **kwargs) for integration, args, kwargs in self.get_default_integrations()
                     ],
                 }
             )
