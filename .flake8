@@ -25,4 +25,5 @@ black-config = .black
 # flake8-import-order
 application-import-names =
     shy_sentry
+import-order-style = pycharm
 
