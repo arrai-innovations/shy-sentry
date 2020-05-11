@@ -2,6 +2,7 @@ version: 2.1
 orbs:
   utils: arrai/utils@1.5.0
   flake8: arrai/flake8@6.0.0
+  deepcode: arrai/deepcode@1.1.0
 executors:
   python36:
     environment:
@@ -102,6 +103,11 @@ workflows:
           name: flake8
           context: arrai-global
           wd: ~/project
+      - deepcode/deepcode:
+          name: deepcode
+          context: arrai-global
+          files: "."
+          wd: "."
   weekly:
     jobs:
       - pythontests:
@@ -120,6 +126,11 @@ workflows:
           name: flake8
           context: arrai-global
           wd: ~/project
+      - deepcode/deepcode:
+          name: deepcode
+          context: arrai-global
+          files: "."
+          wd: "."
     triggers:
       - schedule:
           cron: "0 2 * * 1"
