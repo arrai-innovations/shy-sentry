@@ -14,6 +14,10 @@ select =
     G1
     # flake8-logging-format exceptions
     G2
+    # flake8-import-order import order
+    I1
+    # flake8-import-order newlines
+    I2
     # flake8-broken-line
     N4
     # flake8-pep3101

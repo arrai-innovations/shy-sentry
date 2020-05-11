@@ -22,29 +22,7 @@ max-complexity = 20
 max-line-length = 120
 # flake8-black
 black-config = .black
-# pep8-naming
-ignore-names =
-    # defaults
-    setUp
-    tearDown
-    setUpClass
-    tearDownClass
-    setUpTestData
-    failureException
-    longMessage
-    maxDiff
-    # custom (ideally, we'd want "assert*")
-    assertInTransaction
-    assertIsEmpty
-    assertIsSubclass
-    assertLengthEqual
-    assertNotInTransaction
-    assertNotIsSubclass
-    assertNotRaises
-    assertNoZombies
-    assertOrdered
-    assertStatusEqual
-    assertStatusIn
-    assertStatusNotOK
-    assertStatusOK
-    assertSubset
+# flake8-import-order
+application-import-names =
+    shy_sentry
+
