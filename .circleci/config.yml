@@ -131,11 +131,3 @@ workflows:
           context: arrai-global
           files: "."
           wd: "."
-    triggers:
-      - schedule:
-          cron: "0 2 * * 1"
-          filters:
-            branches:
-              only:
-                - master
-                - develop
