@@ -34,8 +34,6 @@ Extending [getsentry/sentry-python](https://github.com/getsentry/sentry-python),
 
 ![Flake8](https://docs.arrai-dev.com/shy-sentry/master.flake8.svg)
 
-![DeepCode](https://docs.arrai-dev.com/shy-sentry/master.deepcode.svg)
-
 ###### develop
 
 ![Tests](https://docs.arrai-dev.com/shy-sentry/develop.python38.svg) [![Coverage](https://docs.arrai-dev.com/shy-sentry/develop.python38.coverage.svg)](https://docs.arrai-dev.com/shy-sentry/htmlcov_develop_python38/)
@@ -45,8 +43,6 @@ Extending [getsentry/sentry-python](https://github.com/getsentry/sentry-python),
 ![Tests](https://docs.arrai-dev.com/shy-sentry/develop.python36.svg) [![Coverage](https://docs.arrai-dev.com/shy-sentry/develop.python36.coverage.svg)](https://docs.arrai-dev.com/shy-sentry/htmlcov_develop_python36/)
 
 ![Flake8](https://docs.arrai-dev.com/shy-sentry/develop.flake8.svg)
-
-![DeepCode](https://docs.arrai-dev.com/shy-sentry/develop.deepcode.svg)
 
 ## Install
 
