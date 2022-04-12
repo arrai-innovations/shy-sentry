@@ -26,6 +26,8 @@ Extending [getsentry/sentry-python](https://github.com/getsentry/sentry-python),
 
 ###### master
 
+![Tests](https://docs.arrai-dev.com/shy-sentry/artifacts/master/python310.svg) [![Coverage](https://docs.arrai-dev.com/shy-sentry/artifacts/master/python310.coverage.svg)](https://docs.arrai-dev.com/shy-sentry/artifacts/master/htmlcov_python310/)
+
 ![Tests](https://docs.arrai-dev.com/shy-sentry/artifacts/master/python39.svg) [![Coverage](https://docs.arrai-dev.com/shy-sentry/artifacts/master/python39.coverage.svg)](https://docs.arrai-dev.com/shy-sentry/artifacts/master/htmlcov_python39/)
 
 ![Tests](https://docs.arrai-dev.com/shy-sentry/artifacts/master/python38.svg) [![Coverage](https://docs.arrai-dev.com/shy-sentry/artifacts/master/python38.coverage.svg)](https://docs.arrai-dev.com/shy-sentry/artifacts/master/htmlcov_python38/)
@@ -37,6 +39,8 @@ Extending [getsentry/sentry-python](https://github.com/getsentry/sentry-python),
 ![Flake8](https://docs.arrai-dev.com/shy-sentry/artifacts/master/flake8.svg)
 
 ###### develop
+
+![Tests](https://docs.arrai-dev.com/shy-sentry/artifacts/develop/python310.svg) [![Coverage](https://docs.arrai-dev.com/shy-sentry/artifacts/develop/python310.coverage.svg)](https://docs.arrai-dev.com/shy-sentry/artifacts/develop/htmlcov_python310/)
 
 ![Tests](https://docs.arrai-dev.com/shy-sentry/artifacts/develop/python39.svg) [![Coverage](https://docs.arrai-dev.com/shy-sentry/artifacts/develop/python39.coverage.svg)](https://docs.arrai-dev.com/shy-sentry/artifacts/develop/htmlcov_python39/)
 
