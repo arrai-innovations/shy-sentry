@@ -94,12 +94,16 @@ class MockSentryTestCase(TestCase):
 
     def test_guard_decorator_no_init(self):
         self.do_test(
-            "./tests/test_scripts/guard_decorator_no_init.py", expect_traceback=True, expect_request=False,
+            "./tests/test_scripts/guard_decorator_no_init.py",
+            expect_traceback=True,
+            expect_request=False,
         )
 
     def test_guard_context_manager_no_init(self):
         self.do_test(
-            "./tests/test_scripts/guard_context_manager_no_init.py", expect_traceback=True, expect_request=False,
+            "./tests/test_scripts/guard_context_manager_no_init.py",
+            expect_traceback=True,
+            expect_request=False,
         )
 
     def test_cwd_config(self):
@@ -131,7 +135,8 @@ class MockSentrySdkTestCase(TestCase):
         call_args, call_kwargs = mocked_sentry_sdk_init.call_args_list[0]
         self.assertTupleEqual(call_args, ())
         self.assertSetEqual(
-            {"default_integrations", "dsn", "environment", "integrations", "release"}, set(call_kwargs.keys()),
+            {"default_integrations", "dsn", "environment", "integrations", "release"},
+            set(call_kwargs.keys()),
         )
         self.assertFalse(call_kwargs["default_integrations"])
         self.assertEqual(call_kwargs["dsn"], "http://client_key@localhost:8888/mockhttp/mock_sentry/123456")
@@ -155,12 +160,14 @@ class MockSentrySdkTestCase(TestCase):
         call_args, call_kwargs = mocked_sentry_sdk_init.call_args_list[0]
         self.assertTupleEqual(call_args, ())
         self.assertSetEqual(
-            {"default_integrations", "dsn", "environment", "integrations", "release"}, set(call_kwargs.keys()),
+            {"default_integrations", "dsn", "environment", "integrations", "release"},
+            set(call_kwargs.keys()),
         )
         self.assertFalse(call_kwargs["default_integrations"])
         self.assertEqual(call_kwargs["dsn"], "http://client_key@localhost:8888/mockhttp/mock_sentry/123456")
         self.assertEqual(call_kwargs["environment"], "dev")
         self.assertEqual(call_kwargs["release"], "project:branch@version")
         self.assertSetEqual(
-            {x.__class__ for x in call_kwargs["integrations"]}, {x.__class__ for x in integrations},
+            {x.__class__ for x in call_kwargs["integrations"]},
+            {x.__class__ for x in integrations},
         )
