@@ -5,17 +5,20 @@ orbs:
 executors:
   python36:
     environment:
-        LANG: C.UTF-8
+      LANG: C.UTF-8
+      COVERAGE_PROCESS_START: .coveragerc
     docker:
      - image: cimg/python:3.6
   python37:
     environment:
-        LANG: C.UTF-8
+      LANG: C.UTF-8
+      COVERAGE_PROCESS_START: .coveragerc
     docker:
      - image: cimg/python:3.7
   python38:
     environment:
-        LANG: C.UTF-8
+      LANG: C.UTF-8
+      COVERAGE_PROCESS_START: .coveragerc
     docker:
      - image: cimg/python:3.8
 jobs:
@@ -41,13 +44,17 @@ jobs:
       - utils/make_status_shield:
           status: running
           color: lightblue
-      - run: pip install -r requirements.txt -r test_requirements.txt | cat; test ${PIPESTATUS[0]} -eq 0
-      - run: pip install coverage
-      - run: echo "import coverage; coverage.process_startup()" > coverage-all-the-things.pth
-      - run: export COVERAGE_PROCESS_START=".coveragerc"
-      - run: mv ./coverage-all-the-things.pth $(python -c "import sys; import os; print([x for x in sys.path if x.find('site-packages') != -1][0] + '/')")
-      - run: coverage run -p -m unittest
       - run:
+          description: "Set up environment."
+          command: |
+            pip install -r requirements.txt -r test_requirements.txt | cat; test ${PIPESTATUS[0]} -eq 0
+            echo "import coverage; coverage.process_startup()" > `python -c "import sys; print([x for x in sys.path if x.find('site-packages') != -1][0] + '/coverage-all-the-things.pth')"`
+      - run:
+          description: "Run tests."
+          command: |
+            coverage run -p -m unittest
+      - run:
+          description: "Combine coverage."
           when: always
           command: |
             coverage combine -a
