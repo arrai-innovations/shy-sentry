@@ -1,5 +1,6 @@
 # Copyright (C) 2020 Arrai Innovations Inc. - All Rights Reserved
 from setuptools import setup
+
 from shy_sentry import __version__
 
 with open("README.md", "r") as fh:
