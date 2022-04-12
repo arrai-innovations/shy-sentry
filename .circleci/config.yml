@@ -113,3 +113,5 @@ workflows:
           name: flake8
           context: arrai-global
           wd: ~/project
+          flake8_cmd: pflake8
+          executor: flake8/python38
