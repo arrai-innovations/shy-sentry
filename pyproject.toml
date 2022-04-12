@@ -17,7 +17,7 @@ max-complexity = 20
 max-line-length = 120
 # flake8-import-order
 application-import-names = [
-    'shy-sentry',
+    'shy_sentry',
 ]
 import-order-style = 'pycharm'
 # pep8-naming
