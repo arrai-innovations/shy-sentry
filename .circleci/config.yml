@@ -106,21 +106,3 @@ workflows:
           name: flake8
           context: arrai-global
           wd: ~/project
-  weekly:
-    jobs:
-      - pythontests:
-          name: python36
-          context: arrai-global
-          executor: python36
-      - pythontests:
-          name: python37
-          context: arrai-global
-          executor: python37
-      - pythontests:
-          name: python38
-          context: arrai-global
-          executor: python38
-      - flake8/flake8:
-          name: flake8
-          context: arrai-global
-          wd: ~/project
