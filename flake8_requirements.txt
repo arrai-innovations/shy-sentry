@@ -11,3 +11,4 @@ flake8-import-order
 flake8-logging-format
 flake8-pep3101
 pep8-naming
+pyproject-flake8
